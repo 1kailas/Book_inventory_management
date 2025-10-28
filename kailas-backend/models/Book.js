@@ -40,7 +40,9 @@ const bookSchema = new mongoose.Schema({
   }
 });
 
-// Index for better search performance
+// Enhanced indexing for better search performance
 bookSchema.index({ title: 'text', author: 'text', genre: 'text' });
+bookSchema.index({ genre: 1 });
+bookSchema.index({ author: 1 });
 
 module.exports = mongoose.model('Book', bookSchema);

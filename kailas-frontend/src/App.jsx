@@ -3,42 +3,81 @@ import AddBookForm from './components/AddBookForm'
 import BookList from './components/BookList'
 import EditBookModal from './components/EditBookModal'
 import DeleteConfirmation from './components/DeleteConfirmation'
+import SearchFilter from './components/SearchFilter'
+import StatsDashboard from './components/StatsDashboard'
+import Toast from './components/Toast'
 import { bookAPI } from './services/api'
 import './App.css'
 
 function App() {
   const [books, setBooks] = useState([])
   const [loading, setLoading] = useState(true)
-  const [error, setError] = useState('')
   const [editingBook, setEditingBook] = useState(null)
   const [deletingBook, setDeletingBook] = useState(null)
+  const [searchTerm, setSearchTerm] = useState('')
+  const [selectedGenre, setSelectedGenre] = useState('')
+  const [sortBy, setSortBy] = useState('createdAt')
+  const [sortOrder, setSortOrder] = useState('desc')
+  const [darkMode, setDarkMode] = useState(false)
+  const [toast, setToast] = useState(null)
+  const [stats, setStats] = useState({ totalBooks: 0, outOfStockBooks: 0 })
 
-  // Fetch all books
+  const showToast = (message, type = 'info') => {
+    setToast({ message, type })
+    setTimeout(() => setToast(null), 3000)
+  }
+
+  // Fetch all books with filters
   const fetchBooks = async () => {
     try {
       setLoading(true)
-      const response = await bookAPI.getAllBooks()
+      const params = {}
+      if (searchTerm) params.search = searchTerm
+      if (selectedGenre) params.genre = selectedGenre
+      params.sortBy = sortBy
+      params.sortOrder = sortOrder
+
+      const response = await bookAPI.getAllBooks(params)
       setBooks(response.data)
-      setError('')
+      setStats({
+        totalBooks: response.totalBooks,
+        outOfStockBooks: response.outOfStockBooks
+      })
     } catch (err) {
-      setError('Failed to fetch books: ' + err.message)
+      showToast('Failed to fetch books: ' + err.message, 'error')
     } finally {
       setLoading(false)
     }
   }
 
+  // Fetch statistics
+  const fetchStats = async () => {
+    try {
+      const response = await bookAPI.getStats()
+      setStats(response.data)
+    } catch (err) {
+      console.error('Failed to fetch stats:', err)
+    }
+  }
+
   useEffect(() => {
     fetchBooks()
+  }, [searchTerm, selectedGenre, sortBy, sortOrder])
+
+  useEffect(() => {
+    fetchStats()
   }, [])
 
   // Add new book
   const handleAddBook = async (bookData) => {
     try {
       await bookAPI.addBook(bookData)
-      await fetchBooks() // Refresh the list
+      showToast('Book added successfully!', 'success')
+      await fetchBooks()
+      await fetchStats()
       return true
     } catch (err) {
-      setError('Failed to add book: ' + err.message)
+      showToast('Failed to add book: ' + err.message, 'error')
       return false
     }
   }
@@ -48,10 +87,12 @@ function App() {
     try {
       await bookAPI.updateBook(editingBook._id, bookData)
       setEditingBook(null)
-      await fetchBooks() // Refresh the list
+      showToast('Book updated successfully!', 'success')
+      await fetchBooks()
+      await fetchStats()
       return true
     } catch (err) {
-      setError('Failed to update book: ' + err.message)
+      showToast('Failed to update book: ' + err.message, 'error')
       return false
     }
   }
@@ -61,26 +102,50 @@ function App() {
     try {
       await bookAPI.deleteBook(deletingBook._id)
       setDeletingBook(null)
-      await fetchBooks() // Refresh the list
+      showToast('Book deleted successfully!', 'success')
+      await fetchBooks()
+      await fetchStats()
     } catch (err) {
-      setError('Failed to delete book: ' + err.message)
+      showToast('Failed to delete book: ' + err.message, 'error')
     }
   }
 
+  const toggleDarkMode = () => {
+    setDarkMode(!darkMode)
+    document.body.classList.toggle('dark-mode', !darkMode)
+  }
+
   return (
-    <div className="app">
+    <div className={`app ${darkMode ? 'dark-mode' : ''}`}>
       <header className="app-header">
-        <h1>📚 Book Inventory Management</h1>
-        <p>Manage your book collection efficiently</p>
+        <div className="header-content">
+          <div className="header-title">
+            <h1>📚 Book Inventory Manager</h1>
+            <p>Professional Book Management System</p>
+          </div>
+          <button 
+            className="dark-mode-toggle"
+            onClick={toggleDarkMode}
+            title={darkMode ? 'Switch to Light Mode' : 'Switch to Dark Mode'}
+          >
+            {darkMode ? '☀️' : '🌙'}
+          </button>
+        </div>
       </header>
 
       <main className="app-main">
-        {error && (
-          <div className="error-message">
-            {error}
-            <button onClick={() => setError('')} className="close-btn">×</button>
-          </div>
-        )}
+        <StatsDashboard stats={stats} />
+        
+        <SearchFilter
+          searchTerm={searchTerm}
+          setSearchTerm={setSearchTerm}
+          selectedGenre={selectedGenre}
+          setSelectedGenre={setSelectedGenre}
+          sortBy={sortBy}
+          setSortBy={setSortBy}
+          sortOrder={sortOrder}
+          setSortOrder={setSortOrder}
+        />
 
         <AddBookForm onAddBook={handleAddBook} />
 
@@ -104,6 +169,14 @@ function App() {
             book={deletingBook}
             onConfirm={handleDeleteBook}
             onCancel={() => setDeletingBook(null)}
+          />
+        )}
+
+        {toast && (
+          <Toast
+            message={toast.message}
+            type={toast.type}
+            onClose={() => setToast(null)}
           />
         )}
       </main>
