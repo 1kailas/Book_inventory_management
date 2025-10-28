@@ -6,6 +6,7 @@ import DeleteConfirmation from './components/DeleteConfirmation'
 import SearchFilter from './components/SearchFilter'
 import StatsDashboard from './components/StatsDashboard'
 import Toast from './components/Toast'
+import ThemeToggle from './components/ThemeToggle'
 import { bookAPI } from './services/api'
 import './App.css'
 
@@ -20,11 +21,31 @@ function App() {
   const [sortOrder, setSortOrder] = useState('desc')
   const [darkMode, setDarkMode] = useState(false)
   const [toast, setToast] = useState(null)
-  const [stats, setStats] = useState({ totalBooks: 0, outOfStockBooks: 0 })
+  const [stats, setStats] = useState({ 
+    totalBooks: 0, 
+    outOfStockBooks: 0, 
+    totalValue: 0 
+  })
+
+  // Theme initialization
+  useEffect(() => {
+    const savedTheme = localStorage.getItem('bookInventory-theme')
+    const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches
+    const initialTheme = savedTheme ? savedTheme === 'dark' : prefersDark
+    
+    setDarkMode(initialTheme)
+    document.documentElement.setAttribute('data-theme', initialTheme ? 'dark' : 'light')
+  }, [])
+
+  const toggleDarkMode = () => {
+    const newDarkMode = !darkMode
+    setDarkMode(newDarkMode)
+    document.documentElement.setAttribute('data-theme', newDarkMode ? 'dark' : 'light')
+    localStorage.setItem('bookInventory-theme', newDarkMode ? 'dark' : 'light')
+  }
 
   const showToast = (message, type = 'info') => {
     setToast({ message, type })
-    setTimeout(() => setToast(null), 3000)
   }
 
   // Fetch all books with filters
@@ -110,31 +131,20 @@ function App() {
     }
   }
 
-  const toggleDarkMode = () => {
-    setDarkMode(!darkMode)
-    document.body.classList.toggle('dark-mode', !darkMode)
-  }
-
   return (
-    <div className={`app ${darkMode ? 'dark-mode' : ''}`}>
+    <div className="app">
       <header className="app-header">
         <div className="header-content">
           <div className="header-title">
-            <h1>📚 Book Inventory Manager</h1>
+            <h1><span className="book-icon" role="img" aria-label="Book">📚</span> Book Inventory Manager</h1>
             <p>Professional Book Management System</p>
           </div>
-          <button 
-            className="dark-mode-toggle"
-            onClick={toggleDarkMode}
-            title={darkMode ? 'Switch to Light Mode' : 'Switch to Dark Mode'}
-          >
-            {darkMode ? '☀️' : '🌙'}
-          </button>
+          <ThemeToggle darkMode={darkMode} toggleDarkMode={toggleDarkMode} />
         </div>
       </header>
 
       <main className="app-main">
-        <StatsDashboard stats={stats} />
+        <StatsDashboard stats={stats} darkMode={darkMode} />
         
         <SearchFilter
           searchTerm={searchTerm}
@@ -145,15 +155,17 @@ function App() {
           setSortBy={setSortBy}
           sortOrder={sortOrder}
           setSortOrder={setSortOrder}
+          darkMode={darkMode}
         />
 
-        <AddBookForm onAddBook={handleAddBook} />
+        <AddBookForm onAddBook={handleAddBook} darkMode={darkMode} />
 
         <BookList
           books={books}
           loading={loading}
           onEdit={setEditingBook}
           onDelete={setDeletingBook}
+          darkMode={darkMode}
         />
 
         {editingBook && (
@@ -161,6 +173,7 @@ function App() {
             book={editingBook}
             onUpdate={handleUpdateBook}
             onClose={() => setEditingBook(null)}
+            darkMode={darkMode}
           />
         )}
 
@@ -169,6 +182,7 @@ function App() {
             book={deletingBook}
             onConfirm={handleDeleteBook}
             onCancel={() => setDeletingBook(null)}
+            darkMode={darkMode}
           />
         )}
 
@@ -177,6 +191,7 @@ function App() {
             message={toast.message}
             type={toast.type}
             onClose={() => setToast(null)}
+            darkMode={darkMode}
           />
         )}
       </main>

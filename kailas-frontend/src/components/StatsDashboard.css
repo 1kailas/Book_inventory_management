@@ -1,152 +1,138 @@
 .stats-dashboard {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
-  gap: 1.25rem;
-  margin-bottom: 1.5rem;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: var(--spacing-lg);
+  margin-bottom: var(--spacing-lg);
 }
 
 .stat-card {
-  background: var(--bg-color);
-  padding: 1.5rem;
-  border-radius: var(--border-radius);
-  box-shadow: var(--shadow);
+  background: var(--bg-primary);
+  padding: var(--spacing-xl);
+  border-radius: var(--radius-xl);
+  box-shadow: var(--shadow-md);
+  border: 1px solid var(--border-light);
   display: flex;
   align-items: center;
-  gap: 1rem;
+  gap: var(--spacing-lg);
   transition: all 0.3s ease;
-  border-left: 4px solid var(--primary-color);
-  min-height: 120px;
+  position: relative;
+  overflow: hidden;
+}
+
+.stat-card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 4px;
+  background: linear-gradient(135deg, var(--primary-500), var(--primary-600));
 }
 
 .stat-card:hover {
-  transform: translateY(-3px);
+  transform: translateY(-4px);
   box-shadow: var(--shadow-lg);
 }
 
 .stat-icon {
-  font-size: 2rem;
-  padding: 0.875rem;
-  border-radius: 50%;
-  background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
-  flex-shrink: 0;
-  width: 60px;
-  height: 60px;
+  width: 64px;
+  height: 64px;
+  border-radius: var(--radius-lg);
+  background: linear-gradient(135deg, var(--primary-500), var(--primary-600));
   display: flex;
   align-items: center;
   justify-content: center;
+  font-size: 1.5rem;
+  flex-shrink: 0;
+  box-shadow: var(--shadow-md);
 }
 
 .stat-info {
   flex: 1;
-  min-width: 0; /* Prevent text overflow */
+  min-width: 0;
 }
 
 .stat-info h3 {
-  font-size: 0.8rem;
-  color: var(--text-light);
-  margin-bottom: 0.5rem;
+  font-size: 0.875rem;
+  color: var(--text-secondary);
+  margin-bottom: var(--spacing-sm);
   text-transform: uppercase;
   letter-spacing: 0.5px;
   font-weight: 600;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
 }
 
 .stat-value {
-  font-size: 1.75rem;
-  font-weight: 700;
-  color: var(--primary-color);
-  line-height: 1.2;
+  font-size: 2.25rem;
+  font-weight: 800;
+  color: var(--text-primary);
+  line-height: 1.1;
   display: block;
 }
 
 .stat-value.warning {
-  color: var(--warning-color);
+  color: var(--warning-500);
 }
 
 .stat-value.success {
-  color: var(--success-color);
+  color: var(--success-500);
 }
 
-/* Responsive Design for StatsDashboard */
-
-/* Tablets (768px and below) */
-@media (max-width: 768px) {
-  .stats-dashboard {
-    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-    gap: 1rem;
-  }
-  
-  .stat-card {
-    padding: 1.25rem;
-    min-height: 100px;
-  }
-  
-  .stat-icon {
-    width: 50px;
-    height: 50px;
-    font-size: 1.75rem;
-    padding: 0.75rem;
-  }
-  
-  .stat-value {
-    font-size: 1.5rem;
-  }
+.stat-trend {
+  font-size: 0.875rem;
+  font-weight: 500;
+  margin-top: var(--spacing-xs);
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-xs);
 }
 
-/* Mobile (480px and below) */
-@media (max-width: 480px) {
-  .stats-dashboard {
-    grid-template-columns: 1fr;
-    gap: 0.875rem;
-  }
-  
-  .stat-card {
-    padding: 1rem;
-    min-height: auto;
-    gap: 0.875rem;
-  }
-  
-  .stat-icon {
-    width: 45px;
-    height: 45px;
-    font-size: 1.5rem;
-    padding: 0.625rem;
-  }
-  
-  .stat-info h3 {
-    font-size: 0.75rem;
-  }
-  
-  .stat-value {
-    font-size: 1.375rem;
-  }
-}
+.trend-up { color: var(--success-500); }
+.trend-down { color: var(--error-500); }
 
-/* Very small mobile (375px and below) */
-@media (max-width: 375px) {
-  .stat-card {
-    padding: 0.875rem;
-  }
-  
-  .stat-icon {
-    width: 40px;
-    height: 40px;
-    font-size: 1.25rem;
-  }
-}
-
-/* 2-column layout for medium screens */
-@media (min-width: 481px) and (max-width: 768px) {
+/* Responsive Design */
+@media (max-width: 1024px) {
   .stats-dashboard {
     grid-template-columns: repeat(2, 1fr);
   }
 }
 
-/* 4-column layout for large screens */
-@media (min-width: 1200px) {
+@media (max-width: 768px) {
   .stats-dashboard {
-    grid-template-columns: repeat(4, 1fr);
+    grid-template-columns: 1fr;
+    gap: var(--spacing-md);
+  }
+  
+  .stat-card {
+    padding: var(--spacing-lg);
+    gap: var(--spacing-md);
+  }
+  
+  .stat-icon {
+    width: 56px;
+    height: 56px;
+    font-size: 1.25rem;
+  }
+  
+  .stat-value {
+    font-size: 2rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .stat-card {
+    padding: var(--spacing-md);
+    flex-direction: column;
+    text-align: center;
+    gap: var(--spacing-md);
+  }
+  
+  .stat-icon {
+    width: 48px;
+    height: 48px;
+    font-size: 1.125rem;
+  }
+  
+  .stat-value {
+    font-size: 1.75rem;
   }
 }

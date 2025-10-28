@@ -1,3 +1,9 @@
+.action-icon {
+  font-size: 1.25em;
+  display: inline-block;
+  vertical-align: middle;
+  margin-right: 0.25em;
+}
 .book-list {
   background: var(--bg-color);
   padding: 1.5rem;
