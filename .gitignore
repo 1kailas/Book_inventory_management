@@ -15,7 +15,6 @@ build/
 kailas-backend/node_modules/
 
 # dotenv environment variables
-.env
 .env.*
 
 # VS Code settings
